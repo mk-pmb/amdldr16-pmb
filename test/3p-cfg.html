@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Demo Webapp</title>
+  <meta http-equiv="Content-Script-Type" content="text/javascript">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <style>
+  </style>
+</head><body>
+
+<script id="lib-log" src="../lib/dom.log.js"></script>
+<script id="amdldr16-pmb-inject" src="../dist/3p-cfg.js"></script>
+
+<script id="indoc1">
+/*jslint indent: 2, maxlen: 80, browser: true */
+(function () {
+  'use strict';
+  var curl = window.curl, log = window.log;
+
+  curl('amdldr16-pmb/plumbing').then(function (x) { window.amdldr = x; });
+
+  function tryCurl(spec, globalize) {
+    return curl(spec, function (x) {
+      log('+OK', spec, x);
+      if (globalize) { window[globalize] = x; }
+    }).then(null, log.pfx('-ERR', spec));
+  }
+
+  tryCurl('amdldr16-pmb/cfg');
+  tryCurl('amdldr16-pmb/curlcfg');
+  tryCurl('json!doc./../package.json');
+  tryCurl('json!amdldr16-pmb/package.json');
+
+}());
+</script>
+
+</body></html>

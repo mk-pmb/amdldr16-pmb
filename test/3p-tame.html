@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Demo Webapp</title>
+  <meta http-equiv="Content-Script-Type" content="text/javascript">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <style>
+  </style>
+</head><body>
+
+<script src="../lib/dom.log.js"></script>
+<script src="../dist/3p-tame.js"></script>
+
+<script>
+/*jslint indent: 2, maxlen: 80, browser: true */
+(function () {
+  'use strict';
+  var curl = window.curl, log = window.log,
+    modDirUrl = location.pathname.split(/(\/)/).slice(0, -3).join('');
+
+  function tryCurl(spec, globalize) {
+    curl(spec, function (x) {
+      log('+OK', spec, x);
+      if (globalize) { window[globalize] = x; }
+    }).then(null, log.pfx('-ERR', spec));
+  }
+
+  // tryCurl('json!../package.json');
+  tryCurl('json!' + modDirUrl + 'package.json');
+  tryCurl('cjs!' + modDirUrl + 'src/util.str.js', 'strUtil');
+}());
+</script>
+
+</body></html>
