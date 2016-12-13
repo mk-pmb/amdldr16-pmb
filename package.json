@@ -1,0 +1,56 @@
+{ "name": "amdldr16-pmb",
+  "version": "0.0.1",
+  "description": "Bundle my favorite web-app stepping stones: lodash v4 + jQuery v2 + CujoJS curl + a chainloader for custom scripts.",
+  "keywords": [
+    "amd",
+    "chain loader",
+    "chainload",
+    "chainloader",
+    "cujojs curl",
+    "curl",
+    "jquery",
+    "lodash",
+    "stepping stones",
+    "web dev",
+    "webapp",
+    "web-app",
+    "webdev"
+  ],
+
+  "author": "M.K. (https://github.com/mk-pmb)",
+  "homepage": "https://github.com/mk-pmb/amdldr16-pmb#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mk-pmb/amdldr16-pmb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mk-pmb/amdldr16-pmb/issues"
+  },
+
+  "private": false, "license": "MIT",
+
+  "main": "dist/ld.js",
+  "scripts": {
+    "build": "build/bake.sh",
+    "prepublish": "build/bake.sh",
+    "test": "nodejs test/all.js"
+  },
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+
+  "dependencies": {
+  },
+  "browser": {},
+  "devDependencies": {
+    "curl-amd": "^0.8.13",
+    "equal-pmb": "^0.1.0",
+    "jquery": "^2.1.1",
+    "lodash": "^4.17.2",
+    "uglify-js": "^2.7.5"
+  },
+
+
+  "npm vs. BOM = Unexpected token": "-*- coding: UTF-8 -*-"
+}
