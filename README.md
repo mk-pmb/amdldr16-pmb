@@ -5,17 +5,18 @@ amdldr16-pmb
 <!--/#echo -->
 
 <!--#echo json="package.json" key="description" -->
-Bundle my favorite web-app stepping stones: lodash v4 + jQuery v2 + CujoJS
-curl + a chainloader for custom scripts.
+Bundle my favorite web-app stepping stones: CujoJS curl + jQuery v2 + lodash
+v4 + a chainloader for custom scripts.
 <!--/#echo -->
 
 
 dist/
 -----
 
-  * `3p-base.js` (3rd-party libs) = npm:`lodash/lodash.min`
-    \+ npm:`jquery/dist/jquery.min`
+  * `3p-base.js` (3rd-party libs) = npm:`jquery/dist/jquery.min`
+    \+ npm:`lodash/lodash.min`
     \+ npm:`curl-amd/dist/curl-kitchen-sink/curl`
+    * jQuery before curl! ([workaround](doc/workarounds.md) for v2.1.1)
 
   * `3p-tame.js` = dist/`3p-base` + build/`adjust-names`
     * remove `window._` and `window.$` because they're ugly.
@@ -51,6 +52,8 @@ Known issues
     tag that shall determine path, make sure that this id is unique,
     and provide its `src` URL absolute within the host (so the number of
     leading slashes is one).
+
+
 
 
 

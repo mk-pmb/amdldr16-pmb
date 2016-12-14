@@ -6,11 +6,9 @@
 (function () {
   'use strict';
 
-  function oc0() { return Object.create(null); }
-
-  var pkgName = 'amdldr16-pmb', jq = window.jQuery, cfg = oc0(),
-    curlPaths = oc0(), curlCfg = { paths: curlPaths, packages: oc0(), },
-    plumbing = oc0();
+  var pkgName = 'amdldr16-pmb', jq = window.jQuery, cfg = {},
+    curlPaths = {}, curlCfg = { paths: curlPaths, packages: {}, },
+    plumbing = {};
   define(pkgName + '/cfg', function () { return cfg; });
   define(pkgName + '/curlcfg', function () { return curlCfg; });
   define(pkgName + '/plumbing', function () { return plumbing; });
@@ -63,6 +61,21 @@
 
   curl(curlCfg);
 
+  // curl utility methods
+  (function () {
+    function tryInstall(mod) {
+      jq(document).ready(function () { mod.install(window); });
+    }
+    curl.win = function () {
+      var args = Array.prototype.slice.call(arguments);
+      return curl.apply(null, args).then(tryInstall, function (err) {
+        console.error('failed to curl.win', args, err);
+      });
+    };
+    curl.globalize = function (id, prop) {
+      return curl(id).then(function (mod) { window[prop || id] = mod; });
+    };
+  }());
 
 
 
