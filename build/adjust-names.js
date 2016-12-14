@@ -5,7 +5,6 @@
 /* @license MIT | amdldr16-pmb: adjust names */
 (function () {
   'use strict';
-
   function identity(x) { return x; }
   define('curl/plugin/cjs', ['curl/loader/cjsm11'], identity);
 
@@ -21,8 +20,8 @@
     jq = window[jq].noConflict();
     window.jQuery = jq;
     // ^-- usually it's already there anyway.
+    define('jquery', function () { return jq; });
   }('$'));
-
 
 
 
