@@ -11,9 +11,12 @@
 <script>window.curl.win('ldr./lib/chainloader.js');</script>
 
 <script id="amdldr16-pmb-config" type="text/json">
-{ "amdldr16-pmb/test/app01-main.js": [ "init", 23, "foo", { "bar": 42 } ],
-  "amdldr16-pmb/lib/wikifx": [ "", "al16fx" ]
-}
+[ [ "cjs!amdldr16-pmb/test/app01-main.js", "init", 23, "foo", { "bar": 42 } ],
+  [ "doc./../lib/dom.log.js", "", "chain-log", 1 ],
+  "cjs!amdldr16-pmb/test/side-effect.js",
+  { "wikifx": { "cls": "al16fx" } },
+  [ "doc./../lib/dom.log.js", null, "chain-log", 2 ],
+  null ]
 </script>
 
 </body></html>

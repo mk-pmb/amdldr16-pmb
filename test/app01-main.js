@@ -3,7 +3,7 @@
 'use strict';
 
 var domlog = require('ldr./lib/dom.log'),
-  plumbing = require('ldr./plumbing');
+  plumbing = require('amdldr16-pmb/plumbing');
 
 domlog('app-init: plumbing:', plumbing);
 
