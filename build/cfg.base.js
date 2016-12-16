@@ -13,6 +13,7 @@
   define(pkgName + '/curlcfg', function () { return curlCfg; });
   define(pkgName + '/plumbing', function () { return plumbing; });
 
+
   // guess paths:
   (function () {
     var alInjectTag, alPath, modPath, pageDir;
@@ -61,10 +62,14 @@
 
   curl(curlCfg);
 
-  // curl utility methods
+
+  // curl utility methods for internal use. NOT an API.
   (function () {
     function tryInstall(mod) {
-      jq(document).ready(function () { mod.install(window); });
+      if (typeof mod.install !== 'function') { return; }
+      function installNow() { mod.install(window); }
+      function installSoon() { setTimeout(installNow, 5); }
+      jq(document).ready(installSoon);
     }
     curl.win = function () {
       var args = Array.prototype.slice.call(arguments);

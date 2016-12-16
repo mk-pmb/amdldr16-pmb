@@ -31,7 +31,7 @@
 
   "main": "dist/ld.js",
   "scripts": {
-    "build": "build/bake.sh",
+    "start": "build/bake.sh",
     "prepublish": "build/bake.sh",
     "test": "nodejs test/all.js"
   },

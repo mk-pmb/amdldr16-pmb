@@ -30,11 +30,6 @@ dist/
   * `al.js` = dist/`3p-cfg`
     \+ lib/`chainloader`
 
-  * `dev.js` = dist/`al`
-    \+ lib/`dom.log`
-    \+ lib/`util.obj`
-    \+ lib/`util.str`
-    \+ lib/`util.type`
 
 
 build/
