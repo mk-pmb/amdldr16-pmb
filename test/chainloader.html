@@ -5,6 +5,8 @@
   <meta http-equiv="Content-Style-Type" content="text/css">
 </head><body>
 
+<p class="al16fx al16fx-hello-world">loading&hellip;</p>
+
 <script id="lib-log" src="../lib/dom.log.js"></script>
 <script id="amdldr16-pmb-inject" src="../dist/3p-cfg.js"></script>
 
@@ -12,10 +14,9 @@
 
 <script id="amdldr16-pmb-config" type="text/json">
 [ [ "cjs!amdldr16-pmb/test/app01-main.js", "init", 23, "foo", { "bar": 42 } ],
-  [ "doc./../lib/dom.log.js", "", "chain-log", 1 ],
   "cjs!amdldr16-pmb/test/side-effect.js",
-  { "wikifx": { "cls": "al16fx" } },
-  [ "doc./../lib/dom.log.js", null, "chain-log", 2 ],
+  [ "wikifx", { "cls": "al16fx", "mod": "cjs!amdldr16-pmb/test/fx." } ],
+  [ "doc./../lib/dom.log.js", true, "chain-log", 1 ],
   null ]
 </script>
 
