@@ -4,11 +4,15 @@ BAKEPATH="$(readlink -m "$BASH_SOURCE"/..)"
 
 
 function bake_cli_main () {
-  local -A CFG
-  CFG[dist-dir]='dist'
-
   cd "$BAKEPATH"/.. || return $?
   source "$BAKEPATH"/lib_kitchen_sink.sh --lib || return $?
+
+  local -A CFG
+  CFG[dist-dir]='dist'
+  CFG[pkg-name]="$(nodejs -p 'require("./package.json").name')"
+  [ -n "${CFG[pkg-name]}" ] || return 4$(
+    echo 'E: unable to detect package name' >&2)
+
   cfg_detect_uglify || return $?
 
   rm -- "${CFG[dist-dir]:-.}"/*.js 2>/dev/null
@@ -25,6 +29,7 @@ function bake_receipe () {
   local DEST_FN=
   local SRC_SPEC=
   local INCL_FN=
+  local BAKE_ADJUST_ONCE=()
   for R_STEP in "${R_STEPS[@]}"; do
     case "$R_STEP" in
       '' ) continue;;
@@ -50,6 +55,9 @@ function bake_receipe () {
       add:lib/* )
         SRC_SPEC="${R_STEP#*:}"
         bake_add_js "$SRC_SPEC.js" >>"$DEST_FN" || return $?
+        continue;;
+      add:qfx:chainloader.autostart )
+        BAKE_ADJUST_ONCE+=( -e 's~\b[A-Za-z0-9]+\.autoInstall~true~g' )
         continue;;
     esac
     echo "E: unknown receipe step: '$R_STEP'"; return 8
@@ -107,8 +115,17 @@ function bake_should_minify () {
 
 
 function bake_adjust_minified_js () {
+  local FIRST_BLKCMT='^(/\*[^\r]+\*/\r|)'
+  local AMD_MOD_SPEC="${SRC_SPEC:-E_NO_SRC_SPEC}"
+  case "$AMD_MOD_SPEC" in
+    /* ) ;;
+    [a-z]* )
+      # AMD_MOD_SPEC="${AMD_MOD_SPEC%.js}.js"
+      AMD_MOD_SPEC="${CFG[pkg-name]}/$AMD_MOD_SPEC"
+      ;;
+  esac
   LANG=C sed -nre '
-    1s~^/\*+ *(version:)~/* '"${SRC_SPEC:-E_NO_SRC_SPEC}"' | \1~
+    s~^/\*+ *(version:)~/* '"${SRC_SPEC:-E_NO_SRC_SPEC}"' | \1~
     : copy_remainder
       $s~$~\n~
       p;n
@@ -119,7 +136,8 @@ function bake_adjust_minified_js () {
 
     s~((^|\n)/\*)(\s|\*)*( @[A-Za-z0-9 ]*[A-Za-z0-9]|)(\s|\*)*~\1\4 ~g
     s~(\s|\*)*(\*/)\n~ \2\r~g
-    s~^(/\*[^\r]+\*/\r|);*(\(?function)~\1;\2~
+    s~'"$FIRST_BLKCMT"';*((define\(|\(|)function)\b~\1;\2~
+    s~'"$FIRST_BLKCMT"';*(define\()(function)\b~\1;\2"'"$AMD_MOD_SPEC"'", \3~
 
     s~\n((/| *)\*)~\r\1~g
     s~([,;:{}()])\n~\1~g
@@ -129,7 +147,8 @@ function bake_adjust_minified_js () {
     s~\r~\n~g
     s~\s+\n~\n~g    # however, keep whitespace after \n: comment indentation
     s~\s*$~~
-    '
+    ' | sed -re '' "${BAKE_ADJUST_ONCE[@]}"
+  BAKE_ADJUST_ONCE=()
   maxrv "${PIPESTATUS[@]}"; return $?
 }
 
