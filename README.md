@@ -28,7 +28,8 @@ dist/
 
   * `3p-cfg.js` = dist/`3p-tame` + build/`cfg.base`
   * `al.js` = dist/`3p-cfg`
-    \+ lib/`chainloader`
+    \+ lib/`util.obj`
+    \+ qfx:`chainloader.autostart` + lib/`chainloader`
 
 
 

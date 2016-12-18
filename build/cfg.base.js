@@ -78,7 +78,8 @@
       });
     };
     curl.globalize = function (id, prop) {
-      return curl(id).then(function (mod) { window[prop || id] = mod; });
+      return curl(id).then(function (mod) { window[prop || id] = mod; },
+        function (err) { console.error('failed to curl', id, err); });
     };
   }());
 
