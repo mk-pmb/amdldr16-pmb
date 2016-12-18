@@ -16,7 +16,7 @@ dist/
   * `3p-base.js` (3rd-party libs) = npm:`jquery/dist/jquery.min`
     \+ npm:`lodash/lodash.min`
     \+ npm:`curl-amd/dist/curl-kitchen-sink/curl`
-    * jQuery before curl! ([workaround](doc/workarounds.md) for v2.1.1)
+    * jQuery before curl! ([workaround](docs/workarounds.md) for v2.1.1)
 
   * `3p-tame.js` = dist/`3p-base` + build/`adjust-names`
     * remove `window._` and `window.$` because they're ugly.

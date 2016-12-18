@@ -63,25 +63,6 @@
   curl(curlCfg);
 
 
-  // curl utility methods for internal use. NOT an API.
-  (function () {
-    function tryInstall(mod) {
-      if (typeof mod.install !== 'function') { return; }
-      function installNow() { mod.install(window); }
-      function installSoon() { setTimeout(installNow, 5); }
-      jq(document).ready(installSoon);
-    }
-    curl.win = function () {
-      var args = Array.prototype.slice.call(arguments);
-      return curl.apply(null, args).then(tryInstall, function (err) {
-        console.error('failed to curl.win', args, err);
-      });
-    };
-    curl.globalize = function (id, prop) {
-      return curl(id).then(function (mod) { window[prop || id] = mod; },
-        function (err) { console.error('failed to curl', id, err); });
-    };
-  }());
 
 
 
