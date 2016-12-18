@@ -1,18 +1,22 @@
 ﻿/*jslint indent: 2, maxlen: 80, browser: true */
 /* -*- tab-width: 2 -*- */
-/*globals define:true, curl:true */
+/*globals define:true */
 
 /* @license MIT | amdldr16-pmb: basecfg */
 (function () {
   'use strict';
+  var pkgName = 'amdldr16-pmb', jq = window.jQuery, ld = window.lodash,
+    cfg = {}, plumbing = {},
+    curl = window.curl,
+    curlPaths = { 'curl-amd': 'curl' },
+    curlCfg = { paths: curlPaths, packages: {}, };
 
-  var pkgName = 'amdldr16-pmb', jq = window.jQuery, cfg = {},
-    curlPaths = {}, curlCfg = { paths: curlPaths, packages: {}, },
-    plumbing = {};
-  define(pkgName + '/cfg', cfg);
-  define(pkgName + '/curlcfg', curlCfg);
-  define(pkgName + '/plumbing', plumbing);
-  define('window-pmb', window);
+  if ((typeof define === 'function') && define.amd) {
+    define(pkgName + '/cfg', cfg);
+    define(pkgName + '/curlcfg', curlCfg);
+    define(pkgName + '/plumbing', plumbing);
+    define('curl-amd', ['curl'], ld.identity);
+  }
 
 
   // guess paths:

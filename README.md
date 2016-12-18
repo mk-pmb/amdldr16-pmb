@@ -30,9 +30,11 @@ dist/
     * lodash will be at `window.lodash` and AMD module `lodash`.
     * curl will be at `window.curl` and AMD module `curl`.
     * curl's CommonJS loader is aliased to prefix `cjs!` + module name.
+    * AMD-define()s the global window object as `window-pmb`.
 
   * `3p-cfg.js` = dist/`3p-tame` + build/`cfg.base`
-    * AMD-define()s the global window object as `window-pmb`.
+    * For compatibility with npm's unfortunate package names,
+      add an alias `curl-amd` to the AMD module namespace and curl's paths.
 
   * `al.js` = dist/`3p-cfg`
     \+ lib/`util.obj`

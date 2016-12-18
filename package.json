@@ -1,5 +1,5 @@
 { "name": "amdldr16-pmb",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Bundle my favorite web-app stepping stones: CujoJS curl + jQuery v2 + lodash v4 + a chainloader for custom scripts.",
   "keywords": [
     "amd",
@@ -29,7 +29,7 @@
 
   "private": false, "license": "MIT",
 
-  "main": "dist/ld.js",
+  "main": "lib/chainloader.js",
   "scripts": {
     "start": "build/bake.sh",
     "#prepublish": "build/bake.sh",
