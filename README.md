@@ -27,6 +27,8 @@ dist/
     * curl's CommonJS loader is aliased to prefix `cjs!` + module name.
 
   * `3p-cfg.js` = dist/`3p-tame` + build/`cfg.base`
+    * AMD-define()s the global window object as `window-pmb`.
+
   * `al.js` = dist/`3p-cfg`
     \+ lib/`util.obj`
     \+ qfx:`chainloader.autostart` + lib/`chainloader`

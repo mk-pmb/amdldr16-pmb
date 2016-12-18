@@ -9,9 +9,10 @@
   var pkgName = 'amdldr16-pmb', jq = window.jQuery, cfg = {},
     curlPaths = {}, curlCfg = { paths: curlPaths, packages: {}, },
     plumbing = {};
-  define(pkgName + '/cfg', function () { return cfg; });
-  define(pkgName + '/curlcfg', function () { return curlCfg; });
-  define(pkgName + '/plumbing', function () { return plumbing; });
+  define(pkgName + '/cfg', cfg);
+  define(pkgName + '/curlcfg', curlCfg);
+  define(pkgName + '/plumbing', plumbing);
+  define('window-pmb', window);
 
 
   // guess paths:
