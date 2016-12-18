@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Redirect</title>
+</head><body>
+
+<p>This redirect is based on JavaScript. If you see this message for more
+than a few seconds, you'll need to activate it.</p>
+
+<script>
+/*jslint indent: 2, maxlen: 80, browser: true */
+(function () {
+  'use strict';
+  var dest = String(location.hash || location.search || ''
+    ).match(/[A-Za-z0-9_\-\.]+/);
+  if (dest) {
+    dest = 'node_modules/amdldr16-pmb/test/' + dest[0] + '.html';
+    setTimeout(function () { location.href = dest; }, 10);
+  } else {
+    document.getElementsByTagName('p')[0].innerHTML = 'Error: no destination';
+  }
+}());
+</script>
+
+</body></html>
