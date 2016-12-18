@@ -69,7 +69,7 @@ function bake_receipe () {
 
 function bake_report_finished_file () {
   local FN="$1"
-  local HR_SIZE="$(du --human-readable -- "$FN")"
+  local HR_SIZE="$(du --apparent-size --human-readable -- "$FN")"
   local ENT_TAB=$'\t'
   HR_SIZE="${HR_SIZE%% *}"
   HR_SIZE="${HR_SIZE%%$ENT_TAB*}"
