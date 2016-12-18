@@ -9,6 +9,11 @@ Bundle my favorite web-app stepping stones: CujoJS curl + jQuery v2 + lodash
 v4 + a chainloader for custom scripts.
 <!--/#echo -->
 
+[Live Demo](https://mk-pmb.github.io/amdldr16-pmb/doc/demo.html?chainloader):
+Click the buttons to change their color. Shift key + click = reverse.
+
+Documentation PRs welcome. :-)
+
 
 dist/
 -----
