@@ -62,6 +62,7 @@ function bake_receipe () {
     esac
     echo "E: unknown receipe step: '$R_STEP'"; return 8
   done
+  [ -n "$DEST_FN" ] && bake_report_finished_file "$DEST_FN"
   return 0
 }
 
