@@ -139,6 +139,14 @@ function bake_adjust_minified_js () {
     s~(\s|\*)*(\*/)\n~ \2\r~g
     s~'"$FIRST_BLKCMT"';*((define\(|\(|)function)\b~\1;\2~
     s~'"$FIRST_BLKCMT"';*(define\()(function)\b~\1;\2"'"$AMD_MOD_SPEC"'", \3~
+    s~'"$FIRST_BLKCMT"';*(define\()(function)\b~\1;\2"'"$AMD_MOD_SPEC"'", \3~
+    \~'"$FIRST_BLKCMT"'module\.exports\s*=~{
+      # always add an outer function, in order to protect the outer
+      # namespace from leaking function expression names in MSIE.
+      s~(^|\r)(module\.exports)~\1;define("'"${AMD_MOD_SPEC%\
+        }"'",function(require,exports,module){\2~
+      s~\s*$~});&~
+    }
 
     s~\n((/| *)\*)~\r\1~g
     s~([,;:{}()])\n~\1~g
