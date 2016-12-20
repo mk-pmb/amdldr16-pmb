@@ -58,6 +58,8 @@ Known issues
     and provide its `src` URL absolute within the host (so the number of
     leading slashes is one).
 
+  * When loading module A via curl's CommonJS loader, and A `require()`s B,
+    curl assumes B to be in AMD format.
 
 
 
