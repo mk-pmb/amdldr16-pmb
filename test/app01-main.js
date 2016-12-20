@@ -3,10 +3,11 @@
 'use strict';
 
 var domlog = require('ldr./lib/dom.log'),
-  plumbing = require('amdldr16-pmb/plumbing');
+  plumbing = require('amdldr16-pmb/plumbing'),
+  counter = require('cjs!./side-effect.js');
 
 domlog('app-init: plumbing:', plumbing);
 
 module.exports = {
-  init: domlog.pfx('app-init: args:'),
+  init: domlog.pfx('app-init:', counter(), 'args:'),
 };

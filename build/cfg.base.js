@@ -57,7 +57,7 @@
     modPath = ((alPath.match(/^\S+\/+(node_modules|bower_components)\//)
       || false)[0] || alPath);
     pageDir = String(location.pathname || '/'
-      ).replace(/\/+[\x00-\.0-\uFFFF]+\/*$/, '/');
+      ).replace(/\/+[\x00-\.0-\uFFFF]*$/, '/');
 
     cfg.urlPaths = { pageDir: pageDir, ldrDir: alPath, modules: modPath, };
     curlCfg.baseUrl = modPath;
