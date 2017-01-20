@@ -21,7 +21,11 @@
 
   // guess paths:
   (function () {
-    var alInjectTag, alPath, modPath, pageDir;
+    function hostBase(lnk) {
+      return String(lnk || '').split(/(\/+)/).slice(0, 3).join('');
+    }
+    var alInjectTag, alHostBase, alPath, modPath, pageDir,
+      pageHostBase = hostBase(location);
     alInjectTag = (function () {
       var id = pkgName + '-inject', lastSc = (jq('script:last')[0] || false);
 
@@ -44,9 +48,13 @@
 
     alPath = (function (injTag) {
       if (!injTag) { return; }
-      var url = String(injTag.src || injTag.href
+      var lnk, url = String(injTag.src || injTag.href
         || jq(injTag).data('src-url') || '');
-      url = (url && jq('<a>').attr('href', url)[0].pathname);
+      if (url) {
+        lnk = jq('<a>').attr('href', url)[0];
+        url = lnk.pathname;
+        alHostBase = hostBase(lnk);
+      }
       url = (url && url.match(/^\S*\//));
       if (!url) { return; }
       url = url[0].replace(/\/+dist\/+$/, '/');
@@ -54,10 +62,12 @@
     }(alInjectTag));
     if (!alPath) { throw new Error(pkgName + ': unable to guess source URL'); }
 
-    modPath = ((alPath.match(/^\S+\/+(node_modules|bower_components)\//)
-      || false)[0] || alPath);
-    pageDir = String(location.pathname || '/'
+    if (alHostBase === pageHostBase) { alHostBase = pageHostBase = ''; }
+    modPath = /^\S+\/+(node_modules|bower_components)\//;
+    modPath = alHostBase + ((alPath.match(modPath) || false)[0] || alPath);
+    pageDir = pageHostBase + String(location.pathname || '/'
       ).replace(/\/+[\x00-\.0-\uFFFF]*$/, '/');
+    alPath = alHostBase + alPath;
 
     cfg.urlPaths = { pageDir: pageDir, ldrDir: alPath, modules: modPath, };
     curlCfg.baseUrl = modPath;
