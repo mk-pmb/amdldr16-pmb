@@ -22,7 +22,9 @@
   // guess paths:
   (function () {
     function hostBase(lnk) {
-      return String(lnk || '').split(/(\/+)/).slice(0, 3).join('');
+      var parts = String(lnk || '').split(/(\/+)/);
+      if (parts[0] === 'file:') { return parts.slice(0, 2).join(''); }
+      return parts.slice(0, 3).join('');
     }
     var alInjectTag, alHostBase, alPath, modPath, pageDir,
       pageHostBase = hostBase(location);
