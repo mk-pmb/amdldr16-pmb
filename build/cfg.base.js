@@ -84,7 +84,9 @@
       ovr = (prop && window[prop]);
     if (!ovr) { return; }
     console.log(pkgName + ' custom override:', prop, ovr);
-    if (typeof ovr === 'function') { ovr = ovr(curlCfg); }
+    if (typeof ovr === 'function') {
+      ovr = ovr(curlCfg, { cfg: cfg, plumbing: plumbing });
+    }
     if (ovr && (ovr !== curlCfg)) { Object.assign(ovr, curlCfg); }
   }());
   curl(curlCfg);
