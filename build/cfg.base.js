@@ -38,6 +38,9 @@
   plumbing.injectTag = alInjectTag;
 
 
+  function arrstr(arry, idx) { return ((arry && arry[idx || 0]) || ''); }
+
+
   // guess paths:
   (function () {
     function hostBase(lnk) {
@@ -57,16 +60,19 @@
         url = lnk.pathname;
         alHostBase = hostBase(lnk);
       }
-      url = (url && url.match(/^\S*\//));
-      if (!url) { return; }
-      url = url[0].replace(/\/+dist\/+$/, '/');
-      return url;
+      return (url &&
+        arrstr(url.match(/^\S*\//)
+          ).replace(/\/+dist\/+$/, '/'));
     }(alInjectTag));
     if (!alPath) { throw new Error(pkgName + ': unable to guess source URL'); }
 
     if (alHostBase === pageHostBase) { alHostBase = pageHostBase = ''; }
-    modPath = /^\S+\/+(node_modules|bower_components)\//;
-    modPath = alHostBase + ((alPath.match(modPath) || false)[0] || alPath);
+    modPath = arrstr(alPath.match(/^\S+\/+(node_modules|bower_components)\//));
+    if (!modPath) {
+      modPath = pkgName + '(/|-(js|node)/)';
+      modPath = alPath.replace(new RegExp('(^|/)' + modPath + '$'), '$1');
+    }
+    modPath = alHostBase + modPath;
     pageDir = pageHostBase + String(location.pathname || '/'
       ).replace(/\/+[\x00-\.0-\uFFFF]*$/, '/');
     alPath = alHostBase + alPath;
