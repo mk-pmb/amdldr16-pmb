@@ -5,11 +5,10 @@
 /* @license MIT | amdldr16-pmb: basecfg */
 (function () {
   'use strict';
-  var pkgName = 'amdldr16-pmb', jq = window.jQuery, ld = window.lodash,
-    cfg = {}, plumbing = {},
-    curl = window.curl,
+  var jq = window.jQuery, ld = window.lodash, curl = window.curl,
+    pkgName = 'amdldr16-pmb', alInjectTag, cfg = {}, plumbing = {},
     curlPaths = { 'curl-amd': 'curl' },
-    curlCfg = { paths: curlPaths, packages: {}, };
+    curlCfg = { paths: curlPaths, packages: {} };
 
   if ((typeof define === 'function') && define.amd) {
     define(pkgName + '/cfg', cfg);
@@ -17,6 +16,26 @@
     define(pkgName + '/plumbing', plumbing);
     define('curl-amd', ['curl'], ld.identity);
   }
+
+  alInjectTag = (function () {
+    var id = pkgName + '-inject', lastSc = (jq('script:last')[0] || false);
+
+    // Ignore the last script tag if it doesn't have a source URL;
+    // in that case, it's probably not ours.
+    if (!lastSc.src) { lastSc = false; }
+
+    // If the last script tag has a matching id, always prefer that one,
+    // independent of which one document.getE…ById would select.
+    // In case of just one tag with that id, it's no difference anyway,
+    // and in case of multiple elements with that id, it increases
+    // resilience against parts of page content that accidentially got
+    // the same id.
+    // Examples might include headline anchors and runaway code examples.
+    if (lastSc.id === id) { return lastSc; }
+
+    return (document.getElementById(id) || lastSc);
+  }());
+  plumbing.injectTag = alInjectTag;
 
 
   // guess paths:
@@ -26,27 +45,8 @@
       if (parts[0] === 'file:') { return parts.slice(0, 2).join(''); }
       return parts.slice(0, 3).join('');
     }
-    var alInjectTag, alHostBase, alPath, modPath, pageDir,
+    var alHostBase, alPath, modPath, pageDir,
       pageHostBase = hostBase(location);
-    alInjectTag = (function () {
-      var id = pkgName + '-inject', lastSc = (jq('script:last')[0] || false);
-
-      // Ignore the last script tag if it doesn't have a source URL;
-      // in that case, it's probably not ours.
-      if (!lastSc.src) { lastSc = false; }
-
-      // If the last script tag has a matching id, always prefer that one,
-      // independent of which one document.getE…ById would select.
-      // In case of just one tag with that id, it's no difference anyway,
-      // and in case of multiple elements with that id, it increases
-      // resilience against parts of page content that accidentially got
-      // the same id.
-      // Examples might include headline anchors and runaway code examples.
-      if (lastSc.id === id) { return lastSc; }
-
-      return (document.getElementById(id) || lastSc);
-    }());
-    plumbing.injectTag = alInjectTag;
 
     alPath = (function (injTag) {
       if (!injTag) { return; }
@@ -77,6 +77,16 @@
     curlPaths['ldr.'] = alPath;
   }());
 
+
+  // apply custom overrides:
+  (function () {
+    var prop = (alInjectTag && jq(alInjectTag).attr('debug-precfg')),
+      ovr = (prop && window[prop]);
+    if (!ovr) { return; }
+    console.log(pkgName + ' custom override:', prop, ovr);
+    if (typeof ovr === 'function') { ovr = ovr(curlCfg); }
+    if (ovr && (ovr !== curlCfg)) { Object.assign(ovr, curlCfg); }
+  }());
   curl(curlCfg);
 
 

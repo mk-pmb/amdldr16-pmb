@@ -1,5 +1,5 @@
 { "name": "amdldr16-pmb",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Bundle my favorite web-app stepping stones: CujoJS curl + jQuery v2 + lodash v4 + a chainloader for custom scripts.",
   "keywords": [
     "amd",
