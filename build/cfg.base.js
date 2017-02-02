@@ -87,7 +87,7 @@
     if (typeof ovr === 'function') {
       ovr = ovr(curlCfg, { cfg: cfg, plumbing: plumbing });
     }
-    if (ovr && (ovr !== curlCfg)) { Object.assign(ovr, curlCfg); }
+    if (ovr && (ovr !== curlCfg)) { Object.assign(curlCfg, ovr); }
   }());
   curl(curlCfg);
 
