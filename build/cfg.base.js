@@ -39,6 +39,8 @@
 
 
   function arrstr(arry, idx) { return ((arry && arry[idx || 0]) || ''); }
+  function parDir(p) { return String(p || '/').replace(parDir.rx, '/'); }
+  parDir.rx = /\/+[\x00-\.0-\uFFFF]*\/*$/;
 
 
   // guess paths:
@@ -48,7 +50,7 @@
       if (parts[0] === 'file:') { return parts.slice(0, 2).join(''); }
       return parts.slice(0, 3).join('');
     }
-    var alHostBase, alPath, modPath, pageDir,
+    var alHostBase, alPath, modPath,
       pageHostBase = hostBase(location);
 
     alPath = (function (injTag) {
@@ -72,15 +74,21 @@
       modPath = pkgName + '(/|-(js|node)/)';
       modPath = alPath.replace(new RegExp('(^|/)' + modPath + '$'), '$1');
     }
-    modPath = alHostBase + modPath;
-    pageDir = pageHostBase + String(location.pathname || '/'
-      ).replace(/\/+[\x00-\.0-\uFFFF]*$/, '/');
-    alPath = alHostBase + alPath;
 
-    cfg.urlPaths = { pageDir: pageDir, ldrDir: alPath, modules: modPath, };
-    curlCfg.baseUrl = modPath;
-    curlPaths['doc.'] = pageDir;
-    curlPaths['ldr.'] = alPath;
+    (function () {
+      var cbu = {};
+      cfg.urlPaths = cbu;
+      cbu.modules = curlCfg.baseUrl = alHostBase + modPath;
+
+      function defUps(cpKey, ups, base, path) {
+        var p = base + path;
+        curlPaths[cpKey] = p;
+        if (ups) { defUps(cpKey + '.', ups - 1, base, parDir(path)); }
+        return p;
+      }
+      cbu.pageDir = defUps('doc.', 1, pageHostBase, parDir(location.pathname));
+      cbu.ldrDir = defUps('ldr.', 1, alHostBase, alPath);
+    }());
   }());
 
 
