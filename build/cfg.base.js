@@ -86,7 +86,10 @@
         if (ups) { defUps(cpKey + '.', ups - 1, base, parDir(path)); }
         return p;
       }
-      cbu.pageDir = defUps('doc.', 1, pageHostBase, parDir(location.pathname));
+      cbu.pageDir = defUps('doc.', 1, pageHostBase, parDir(location.pathname
+        // Making sure that there's a file name even in case of a directory
+        // index file being served:
+        + '_'));
       cbu.ldrDir = defUps('ldr.', 1, alHostBase, alPath);
     }());
   }());
