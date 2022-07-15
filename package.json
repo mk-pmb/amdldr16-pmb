@@ -1,6 +1,6 @@
 { "name": "amdldr16-pmb",
-  "version": "0.1.23",
-  "description": "Bundle my favorite web-app stepping stones: CujoJS curl + jQuery v2 + lodash v4 + a chainloader for custom scripts.",
+  "version": "0.2.0",
+  "description": "Bundle my favorite web-app stepping stones: CujoJS curl + jQuery + lodash + a chainloader for custom scripts.",
   "keywords": [
     "amd",
     "chain loader",
@@ -45,10 +45,10 @@
   "browser": {},
   "devDependencies": {
     "curl-amd": "^0.8.13",
-    "equal-pmb": "^0.1.0",
-    "jquery": "^2.1.1",
-    "lodash": "^4.17.2",
-    "uglify-js": "^2.7.5"
+    "jquery": "^3.6.0",
+    "lodash": "^4.17.11",
+    "uglify-js": "^3.14.5",
+    "window-pmb": "^0.1.1"
   },
 
 
