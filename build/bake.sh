@@ -4,6 +4,7 @@ BAKEPATH="$(readlink -m "$BASH_SOURCE"/..)"
 
 
 function bake_cli_main () {
+  local BAKE_FUNC="$1"; shift
   cd "$BAKEPATH"/.. || return $?
   source "$BAKEPATH"/lib_kitchen_sink.sh --lib || return $?
 
@@ -15,22 +16,61 @@ function bake_cli_main () {
 
   cfg_detect_uglify || return $?
 
-  rm -- "${CFG[dist-dir]:-.}"/*.js 2>/dev/null
-  bake_receipe README.md || return $?
-  return 0
+  case "$BAKE_FUNC" in
+    readme | '' )
+      rm -- "${CFG[dist-dir]:-.}"/*.js 2>/dev/null
+      bake_receipe README.md || return $?
+      return $?;;
+  esac
+
+  bake_"$BAKE_FUNC" "$@"
+  return $?
+}
+
+
+function bake_sed () {
+  local SED_OPT="$1"; shift
+  local SED_SCRIPT="$1"; shift
+  local SED_RV=
+  if [ "${SED_BFN:0:1}" != $'\n' ]; then
+    SED_SCRIPT="$(cat -- "$BAKEPATH/$SED_SCRIPT.sed")"
+    [ -n "$SED_SCRIPT" ] || return 4
+  fi
+
+  local SLOT_NAMES=()
+  readarray -t SLOT_NAMES < <(<<<"$SED_SCRIPT" grep -oPe '<\^[^<>]+>' | sort -u)
+  local SLOT=
+  for SLOT in "${SLOT_NAMES[@]}"; do
+    SLOT="${SLOT#<\^}"
+    SLOT="${SLOT%>}"
+    SED_SCRIPT="${SED_SCRIPT//<\^$SLOT>/${SED_SLOTS[$SLOT]}}"
+  done
+
+  LANG=C sed -"${SED_OPT#-}"rf <(echo "$SED_SCRIPT") "$@"
+  SED_RV=$?
+  [ "$SED_RV" == 0 ] && return 0
+  <<<"$SED_SCRIPT" nl -ba >&2
+  echo "W: $FUNCNAME rv=$SED_RV @ ln ${BASH_LINENO[*]}" >&2
+  return "$SED_RV"
 }
 
 
 function bake_receipe () {
   local SRC_FN="$1"
   local R_STEPS=()
-  readarray -t R_STEPS < <(sed -rf "$BAKEPATH"/read-receipes.sed -- "$SRC_FN")
+  readarray -t R_STEPS < <(bake_sed - read-receipes -- "$SRC_FN")
+  bake_steps "${R_STEPS[@]}"
+  return $?
+}
+
+
+function bake_steps () {
   local R_STEP=
   local DEST_FN=
   local SRC_SPEC=
   local INCL_FN=
   local BAKE_ADJUST_ONCE=()
-  for R_STEP in "${R_STEPS[@]}"; do
+  for R_STEP in "$@"; do
     case "$R_STEP" in
       '' ) continue;;
       destfn:* )
@@ -93,8 +133,9 @@ function bake_add_js () {
     1 ) MINIFY=strip_bom;;
     * ) echo "E: failed to guess whether to minify $SRC_FN" >&2; return 4;;
   esac
-  "$MINIFY" "$SRC_FN" | bake_adjust_minified_js
-  maxrv "${PIPESTATUS[@]}"; return $?
+
+  "$MINIFY" "$SRC_FN"
+  return $?
 }
 
 
@@ -115,55 +156,34 @@ function bake_should_minify () {
 }
 
 
-function bake_adjust_minified_js () {
-  local FIRST_BLKCMT='^(/\*[^\r]+\*/\r|)'
-  local AMD_MOD_SPEC="${SRC_SPEC:-E_NO_SRC_SPEC}"
-  case "$AMD_MOD_SPEC" in
-    /* ) ;;
-    [a-z]* )
-      # AMD_MOD_SPEC="${AMD_MOD_SPEC%.js}.js"
-      AMD_MOD_SPEC="${CFG[pkg-name]}/$AMD_MOD_SPEC"
-      ;;
-  esac
-  LANG=C sed -nre '
-    s~^/\*+ *(version:)~/* '"${SRC_SPEC:-E_NO_SRC_SPEC}"' | \1~
-    : copy_remainder
-      $s~$~\n~
-      p;n
-    b copy_remainder
-    ' | LANG=C sed -re '
-    :read_all
-    $!{N;b read_all}
-
-    s~((^|\n)/\*)(\s|\*)*( @[A-Za-z0-9 ]*[A-Za-z0-9]|)(\s|\*)*~\1\4 ~g
-    s~(\s|\*)*(\*/)\n~ \2\r~g
-    s~'"$FIRST_BLKCMT"';*((define\(|\(|)function)\b~\1;\2~
-    s~'"$FIRST_BLKCMT"';*(define\()(function)\b~\1;\2"'"$AMD_MOD_SPEC"'", \3~
-    s~'"$FIRST_BLKCMT"';*(define\()(function)\b~\1;\2"'"$AMD_MOD_SPEC"'", \3~
-    \~'"$FIRST_BLKCMT"'module\.exports\s*=~{
-      # always add an outer function, in order to protect the outer
-      # namespace from leaking function expression names in MSIE.
-      s~(^|\r)(module\.exports)~\1;define("'"${AMD_MOD_SPEC%\
-        }"'",function(require,exports,module){\2~
-      s~\s*$~});&~
-    }
-
-    s~\n((/| *)\*)~\r\1~g
-    s~([,;:{}()])\n~\1~g
-    s~\n~ ~g
-
-    s~^\s+~~
-    s~\r~\n~g
-    s~\s+\n~\n~g    # however, keep whitespace after \n: comment indentation
-    s~\s*$~~
-    ' | sed -re '' "${BAKE_ADJUST_ONCE[@]}"
-  BAKE_ADJUST_ONCE=()
-  maxrv "${PIPESTATUS[@]}"; return $?
-}
-
-
 function bake_minify_js () {
-  cmdnl "${CFG[uglify-cmdnl]}" "$@"
+  local SRC_FN="$1"; shift
+
+  local MOD_SPEC="$SRC_SPEC"
+  case "$MOD_SPEC" in
+    '' ) MOD_SPEC="E_NO_SRC_SPEC";;
+    /* ) ;;
+    npm:* ) MOD_SPEC="${MOD_SPEC#*:}";;
+    [a-z]* ) MOD_SPEC="${CFG[pkg-name]}/$MOD_SPEC";;
+  esac
+  local -A SED_SLOTS
+  SED_SLOTS['blkcmt#1']='^(/\*[^\r]+\*/\r|)'
+  SED_SLOTS['modspec']="$MOD_SPEC"
+
+  local BAO=( "${BAKE_ADJUST_ONCE[@]}" )
+  BAKE_ADJUST_ONCE=()
+
+  bake_sed -n minify.strip-umd-head-pmb -- "$SRC_FN" \
+    | cmdnl "${CFG[uglify-cmdnl]}" 2> >(LANG=C sed -urf <(echo '
+      /^INFO: Collapsing [A-Za-z]+ /d
+      /^INFO: Dropping declaration of variable /d
+      /^INFO: Dropping duplicated definition of variable /d
+      /^INFO: Dropping unused function /d
+      p') >&2) \
+    | bake_sed -n minify.adj-src-spec \
+    | bake_sed -  minify.adj-wrapfuncs \
+    | LANG=C sed -re '' "${BAO[@]}"
+  maxrv "${PIPESTATUS[@]}"; return $?
 }
 
 

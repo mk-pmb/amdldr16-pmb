@@ -5,8 +5,8 @@ amdldr16-pmb
 <!--/#echo -->
 
 <!--#echo json="package.json" key="description" -->
-Bundle my favorite web-app stepping stones: CujoJS curl + jQuery v2 + lodash
-v4 + a chainloader for custom scripts.
+Bundle my favorite web-app stepping stones: CujoJS curl + jQuery + lodash + a
+chainloader for custom scripts.
 <!--/#echo -->
 
 [Live Demo](https://mk-pmb.github.io/amdldr16-pmb/doc/demo.html?chainloader):
