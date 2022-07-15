@@ -1,0 +1,53 @@
+﻿/*jslint indent: 2, maxlen: 80, continue: false, unparam: false, node: true */
+/* -*- tab-width: 2 -*- */
+'use strict';
+
+module.exports = (function setup() {
+  var UT = {};
+
+  UT.appendScriptTag = function aScT(src, destElem) {
+    if (!src) { return; }
+    if ((src && typeof src) === 'object') { return aScT.fancy(src); }
+    var tag = doc.createElement('script');
+    destElem.appendChild(tag);
+    return tag;
+  };
+  UT.appendScriptTag.fancy = function (opts) {
+    if ((opts && typeof opts) !== 'object') { return; }
+    if (UT.isAry(opts) && (!opts.sc)) { opts = { sc: opts }; }
+    var wrap = doc.createElement('span');
+    wrap.id = EX.uniqueId();
+    opts.sc.forEach(function (sc) {
+      sc = UT.strToObjProp(sc, 'src');
+      var tag = EX.appendScriptTag(sc.src, wrap);
+      if (sc.mod) { tag.setAttribute('modname', sc.mod); }
+    });
+    (function setupCleanup() {
+      var sc = EX.appendScriptTag('about:blank', wrap);
+      sc.cleanup = function () {
+        if (wrap.parentNode) { wrap.parentNode.removeChild(wrap); }
+      };
+      sc.onerror = console.log('err', sc);
+      sc.onload = console.log('load', sc);
+    }());
+    opts.destElem.appendChild(wrap);
+    return;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  return UT;
+}());
