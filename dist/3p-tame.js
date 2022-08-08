@@ -193,4 +193,4 @@ h.a;p=h.factory||h.Aa;if(!x&&!p)throw Error("`exports` or `factory` required for
 }).call(this);
 
 /* @license MIT | amdldr16-pmb: adjust names */
-!function(){"use strict";function n(n){return function(){return n}}var i;i=window.$.noConflict(),window.jQuery=i,define("jquery",n(i)),i=window._.noConflict(),window.lodash=i,define("lodash",n(i)),define("curl/plugin/cjs",["curl/loader/cjsm11"],i.identity),define("window-pmb",window)}();
+!function(){"use strict";function n(n){return function(){return n}}!function(){var i="$",o="_";i=window[i].noConflict(),window.jQuery=i,define("jquery",n(i)),o=window[o].noConflict(),window.lodash=o,define("lodash",n(o)),define("curl/plugin/cjs",["curl/loader/cjsm11"],o.identity),define("window-pmb",window)}()}();
