@@ -35,10 +35,10 @@ function cfg_detect_uglify () {
   local UGLIFY=( "$(node_resolve uglify-js/bin/uglifyjs)" )
   [ -x "${UGLIFY[0]}" ] || return 3$(echo "E: unable to find uglify" >&2)
   UGLIFY+=(
-    # --support-ie8
+    --support-ie8
     --mangle
     --compress
-    # --lint
+    --lint
     --verbose
     --comments      # preserve @license comments
     -- )
