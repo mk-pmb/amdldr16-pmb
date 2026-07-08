@@ -1,12 +1,12 @@
 #!/bin/bash
 # -*- coding: utf-8, tab-width: 2 -*-
-BAKEPATH="$(readlink -m "$BASH_SOURCE"/..)"
 
 
 function bake_cli_main () {
+  local BAKEPATH="$(readlink -m -- "$BASH_SOURCE"/..)"
   local BAKE_FUNC="$1"; shift
-  cd "$BAKEPATH"/.. || return $?
-  source "$BAKEPATH"/lib_kitchen_sink.sh --lib || return $?
+  cd -- "$BAKEPATH"/.. || return $?
+  source -- "$BAKEPATH"/lib_kitchen_sink.sh --lib || return $?
 
   local -A CFG
   CFG[dist-dir]='dist'
@@ -38,7 +38,8 @@ function bake_sed () {
   fi
 
   local SLOT_NAMES=()
-  readarray -t SLOT_NAMES < <(<<<"$SED_SCRIPT" grep -oPe '<\^[^<>]+>' | sort -u)
+  readarray -t SLOT_NAMES < <(echo "$SED_SCRIPT" |
+    grep -oPe '<\^[^<>]+>' | sort --unique)
   local SLOT=
   for SLOT in "${SLOT_NAMES[@]}"; do
     SLOT="${SLOT#<\^}"
@@ -49,7 +50,7 @@ function bake_sed () {
   LANG=C sed -"${SED_OPT#-}"rf <(echo "$SED_SCRIPT") "$@"
   SED_RV=$?
   [ "$SED_RV" == 0 ] && return 0
-  <<<"$SED_SCRIPT" nl -ba >&2
+  echo "$SED_SCRIPT" | nl -ba >&2
   echo "W: $FUNCNAME rv=$SED_RV @ ln ${BASH_LINENO[*]}" >&2
   return "$SED_RV"
 }
@@ -143,15 +144,19 @@ function bake_should_minify () {
   local SRC_FN="$1"
   local SRC_HEAD="$(head --bytes=4K -- "$SRC_FN")"
 
-  <<<"$SRC_HEAD" grep -qPe '[a-z]' || return 2$(
-    echo "E: strange source: no lowercase letter in head of $SRC_FN" >&2)
+  case "$SRC_HEAD" in
+    *[a-z]* ) ;;
+    * )
+      echo E: "strange source: no lowercase letter in head of $SRC_FN" >&2
+      return 2;;
+  esac
 
-  local MAX_LL="$(<<<"$SRC_HEAD" wc --max-line-length)"
+  local MAX_LL="$(echo "$SRC_HEAD" | wc --max-line-length)"
   [ -n "$MAX_LL" ] || return 2
   [ "$MAX_LL" -gt 128 ] && return 1   # probably minified already
 
-  # <<<"$SRC_HEAD" grep -qPe '/\*[je]s[lh]int ' && return 0
-  # <<<"$SRC_HEAD" grep -qFe '/* -*- ' && return 0
+  # echo "$SRC_HEAD" | grep -qPe '/\*[je]s[lh]int ' && return 0
+  # echo "$SRC_HEAD" | grep -qFe '/* -*- ' && return 0
   return 0
 }
 
@@ -173,16 +178,16 @@ function bake_minify_js () {
   local BAO=( "${BAKE_ADJUST_ONCE[@]}" )
   BAKE_ADJUST_ONCE=()
 
-  bake_sed -n minify.strip-umd-head-pmb -- "$SRC_FN" \
-    | cmdnl "${CFG[uglify-cmdnl]}" 2> >(LANG=C sed -urf <(echo '
+  bake_sed -n minify.strip-umd-head-pmb -- "$SRC_FN" |
+    cmdnl "${CFG[uglify-cmdnl]}" 2> >(LANG=C sed -urf <(echo '
       /^INFO: Collapsing [A-Za-z]+ /d
       /^INFO: Dropping declaration of variable /d
       /^INFO: Dropping duplicated definition of variable /d
       /^INFO: Dropping unused function /d
-      p') >&2) \
-    | bake_sed -n minify.adj-src-spec \
-    | bake_sed -  minify.adj-wrapfuncs \
-    | LANG=C sed -re '' "${BAO[@]}"
+      ') >&2) |
+    bake_sed -n minify.adj-src-spec |
+    bake_sed -  minify.adj-wrapfuncs |
+    LANG=C sed -re '' "${BAO[@]}"
   maxrv "${PIPESTATUS[@]}"; return $?
 }
 
@@ -200,4 +205,4 @@ function bake_minify_js () {
 
 
 
-[ "$1" == --lib ] && return 0; bake_cli_main "$@"; exit $?
+bake_cli_main "$@"; exit $?
